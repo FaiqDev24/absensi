@@ -38,7 +38,7 @@ class TeacherController extends Controller
             'name' => 'required',
             'password' => 'required|min:8',
         ], [
-            'email.required' => 'email wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
             'nip.required' => 'NIP wajib diisi.',
             'nip.min' => 'NIP harus terdiri dari minimal 8 karakter.',
             'nip.unique' => 'NIP sudah terdaftar.',

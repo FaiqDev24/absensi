@@ -22,18 +22,18 @@
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
             <input type="text" name="email" id="email" class="form-control @error ('nip') is-invalid @enderror">
-            @error('nip')
+            @error('email')
                 <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
             <input type="password" name="password" id="password" class="form-control @error ('nip') is-invalid @enderror">
-            @error('nip')
+            @error('password')
                 <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
-        <button type="submit" class="btn btn-primary">Kirim</button>
+        <button type="submit" class="btn btn-primary me-3">Kirim</button>
     </form>
  </div>
 @endsection

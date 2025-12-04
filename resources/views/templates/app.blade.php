@@ -40,6 +40,9 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 <li>
+                                    <a class="dropdown-item" href="{{ route('admin.users.index') }}">Data Pengguna</a>
+                                </li>
+                                <li>
                                     <a class="dropdown-item" href="{{ route('admin.teachers.index') }}">Data Guru</a>
                                 </li>
                                 <li>
@@ -88,12 +91,21 @@
                 <div class="dropdown">
                     <a data-mdb-dropdown-init class="nav-link dropdown-toggle d-flex align-items-center" href="#"
                         id="navbarDropdownMenuLink" role="button" aria-expanded="false">
-                        <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img (31).webp" class="rounded-circle me-2"
-                            height="40" alt="profile picture" loading="lazy" />
+                        <span class="me-3 fw-bold">{{ Auth::user()->name ?? 'User' }}</span>
+                        @if (Auth::check() && Auth::user()->profile_photo)
+                            <img src="{{ asset('storage/' . Auth::user()->profile_photo) }}" class="rounded-circle"
+                                style="width: 40px; height: 40px; object-fit: cover; object-position: center;"
+                                alt="profile picture" loading="lazy" />
+                        @else
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                        @endif
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <li>
-                            <a class="dropdown-item" href="#">My profile</a>
+                            <a class="dropdown-item" href="{{ route('profile.show') }}">My profile</a>
                         </li>
                         <li>
                             @if (Auth::check())

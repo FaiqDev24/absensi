@@ -7,6 +7,8 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -18,6 +20,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 //     Auth::logout();
 //     return redirect('/login')->with('success', 'Anda berhasil logout.');
 // })->name('logout');
+
+// untuk profile
+Route::prefix('profile')->name('profile.')->group(function () {
+    Route::get('/show', [ProfileController::class, 'show'])->name('show');
+    Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
+    Route::put('/update', [ProfileController::class, 'update'])->name('update');
+});
 
 Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
@@ -67,6 +76,18 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::get('/edit/{id}', [SubjectController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [SubjectController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [SubjectController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('/users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::post('/store', [UserController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [UserController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [UserController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('destroy');
+        Route::get('/trash', [UserController::class, 'trash'])->name('trash');
+        Route::post('/restore/{id}', [UserController::class, 'restore'])->name('restore');
+        Route::delete('/force-delete/{id}', [UserController::class, 'forceDelete'])->name('force-delete');
     });
 });
 
