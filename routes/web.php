@@ -9,6 +9,8 @@ use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ScheduleController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -21,14 +23,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 //     return redirect('/login')->with('success', 'Anda berhasil logout.');
 // })->name('logout');
 
-// untuk profile
-Route::prefix('profile')->name('profile.')->group(function () {
+// untuk profile (hanya user yang sudah login)
+Route::middleware('role')->prefix('profile')->name('profile.')->group(function () {
     Route::get('/show', [ProfileController::class, 'show'])->name('show');
     Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
     Route::put('/update', [ProfileController::class, 'update'])->name('update');
 });
 
-Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function () {
+Route::middleware('role:admin')->prefix('/admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
     Route::prefix('/teachers')->name('teachers.')->group(function () {
@@ -89,8 +91,37 @@ Route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function (
         Route::post('/restore/{id}', [UserController::class, 'restore'])->name('restore');
         Route::delete('/force-delete/{id}', [UserController::class, 'forceDelete'])->name('force-delete');
     });
+
+    Route::prefix('/schedules')->name('schedules.')->group(function () {
+        Route::get('/', [ScheduleController::class, 'index'])->name('index');
+        Route::get('/create', [ScheduleController::class, 'create'])->name('create');
+        Route::post('/store', [ScheduleController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [ScheduleController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [ScheduleController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [ScheduleController::class, 'destroy'])->name('destroy');
+    });
 });
 
-Route::middleware('isTeacher')->prefix('/teacher')->name('teacher.')->group(function () {
+Route::middleware('role:teacher')->prefix('/teacher')->name('teacher.')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'teacherDashboard'])->name('dashboard');
+
+    Route::prefix('/classrooms')->name('classrooms.')->group(function () {
+        Route::get('/show/{id}', [ClassRoomController::class, 'show'])->name('show');
+    });
+
+    Route::prefix('/attendance')->name('attendance.')->group(function () {
+        Route::get('/', [AttendanceController::class, 'index'])->name('index');
+        Route::get('/create', [AttendanceController::class, 'create'])->name('create');
+        Route::post('/bulk-store', [AttendanceController::class, 'bulkStore'])->name('bulk-store');
+        Route::get('/edit/{id}', [AttendanceController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [AttendanceController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [AttendanceController::class, 'destroy'])->name('destroy');
+        Route::get('/report', [AttendanceController::class, 'report'])->name('report');
+        Route::get('/export', [AttendanceController::class, 'export'])->name('export');
+    });
+
+    Route::prefix('/schedules')->name('schedules.')->group(function () {
+        Route::get('/', [ScheduleController::class, 'index'])->name('index');
+    });
 });
+

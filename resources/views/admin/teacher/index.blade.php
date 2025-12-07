@@ -15,7 +15,6 @@
                 <th>#</th>
                 <th>NIP</th>
                 <th>Nama Guru</th>
-                <th>Mata Pelajaran</th>
                 <th>Aksi</th>
             </tr>
             @foreach ($teachers as $index => $item)
@@ -25,18 +24,6 @@
                     {{-- name, location dari fillable model cinema --}}
                     <th>{{ $item['nip'] }}</th>
                     <th>{{ @$item->user->name }}</th>
-                    <th>
-                        {{ @$item->subjects->name ?? 'Tidak ada mata pelajaran' }}
-                        {{-- @if ($item->subjects->isNotEmpty())
-                            @foreach ($item->subjects as $subject)
-                                {{ $subject->name }}@if (!$loop->last)
-                                    ,
-                                @endif
-                            @endforeach
-                        @else
-                            <em>Tidak ada mata pelajaran</em>
-                        @endif --}}
-                    </th>
                     <th class="d-flex">
                         {{-- ['id' => $item['id']] untuk mengirim id ke route --}}
                         <a href="{{ route('admin.teachers.edit', ['id' => $item['id']]) }}"

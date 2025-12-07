@@ -10,7 +10,7 @@
             {{-- <a href="{{ route('admin.users.export') }}" class="btn btn-secondary me-2">Export (.xlsx)</a>
             <a href="{{ route('admin.users.create') }}" class="btn btn-success">Tambah Data</a> --}}
         </div>
-        <h5 class="mt-3">Data Siswa</h5>
+        <h5 class="mt-3">Data Pengguna</h5>
         <table class="table table-bordered">
             <tr>
                 <th>#</th>

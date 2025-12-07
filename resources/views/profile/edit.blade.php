@@ -13,31 +13,31 @@
                             @csrf
                             @method('PUT')
 
-                            <!-- Preview Foto Profil -->
-                            <div class="mb-3 text-center">
+                            <!-- Preview Foto Profil (Click-to-Change) -->
+                            <div class="mb-3 text-center" style="cursor: pointer;"
+                                 onclick="document.getElementById('profileInput').click();">
+
                                 @if ($user->profile_photo)
                                     <img id="preview" src="{{ asset('storage/' . $user->profile_photo) }}"
                                         alt="Profile Photo" class="rounded-circle"
                                         style="width: 120px; height: 120px; object-fit: cover;">
                                 @else
-                                    <div id="preview"
-                                        class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto"
-                                        style="width: 120px; height: 120px;">
-                                        <i class="fas fa-user fa-2x text-white"></i>
-                                    </div>
+                                    <img id="preview"
+                                        src="https://via.placeholder.com/120?text=User"
+                                        class="rounded-circle"
+                                        style="width: 120px; height: 120px; object-fit: cover;">
                                 @endif
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Foto Profil</label>
-                                <input type="file" name="profile_photo"
-                                    class="form-control @error('profile_photo') is-invalid @enderror" accept="image/*"
-                                    onchange="previewImage(event)">
-                                <small class="text-muted">Maksimal ukuran: 2MB. Format: JPEG, PNG, JPG, GIF</small>
-                                @error('profile_photo')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            <!-- Hidden File Input -->
+                            <input type="file" id="profileInput" name="profile_photo"
+                                class="d-none @error('profile_photo') is-invalid @enderror"
+                                accept="image/*"
+                                onchange="previewImage(event)">
+
+                            @error('profile_photo')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
 
                             <div class="mb-3">
                                 <label class="form-label">Nama</label>
@@ -60,6 +60,26 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">Password Lama</label>
+                                <input type="password" name="old_password"
+                                    class="form-control @error('old_password') is-invalid @enderror"
+                                    placeholder="Masukkan password lama untuk mengubah password">
+                                @error('old_password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Password Baru</label>
+                                <input type="password" name="new_password"
+                                    class="form-control @error('new_password') is-invalid @enderror"
+                                    placeholder="Kosongkan jika tidak ingin mengubah password">
+                                @error('new_password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                 <a href="{{ route('profile.show') }}" class="btn btn-secondary">Batal</a>
                             </div>
@@ -73,16 +93,10 @@
     <script>
         function previewImage(event) {
             const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function() {
-                const preview = document.getElementById('preview');
-                preview.innerHTML = '<img src="' + reader.result +
-                    '" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">';
-            };
+            const preview = document.getElementById('preview');
 
             if (file) {
-                reader.readAsDataURL(file);
+                preview.src = URL.createObjectURL(file); // Update preview instantly
             }
         }
     </script>

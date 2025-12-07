@@ -12,9 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
          $middleware->alias([
-            // 'nama' => alamat
-            'isAdmin' => \App\Http\Middleware\isAdmin::class,
-            'isTeacher' => \App\Http\Middleware\isTeacher::class,
+            // Middleware untuk cek role dengan parameter
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

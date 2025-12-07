@@ -7,6 +7,7 @@ use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\ClassRoom;
 
 class TeacherController extends Controller
 {
@@ -80,8 +81,7 @@ class TeacherController extends Controller
     public function edit($id)
     {
         $teacher = Teacher::find($id);
-        $subject = Subject::get();
-        return view('admin.teacher.edit', compact('teacher', 'subject'));
+        return view('admin.teacher.edit', compact('teacher'));
     }
 
     /**
@@ -89,32 +89,19 @@ class TeacherController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // $request->validate([
-        //     'id_user' => 'required',
-        //     'nip' => 'required|min:8|unique:teachers,nip,'.$id,
-        //     'username' => 'required',
-        //     'password' => 'required|min:8',
-        // ]);
+        $request->validate([
+            'nip' => 'required|min:8',
+            'name' => 'required',
+        ]);
 
         $teacher = Teacher::find($id);
         $user = User::find($teacher->id_user);
         $user->name = $request->name;
         $user->save();
-        // $createDataUser = User::update([
-        //     'email' => $request->email,
-        //     'name' => $request->name,
-        //     'password' => Hash::make($request->password),
-        //     'role' => 'teacher'
-        // ]);
 
-        // $createData = Teacher::update([
-        //     'id_user' => $createDataUsSer->id,
-        //     'nip' => $request->nip,
-        // ]);
         $teacher->update([
             'id_user' => $user->id,
             'nip' => $request->nip,
-            'subject_id' => $request->subject_id,
         ]);
 
         return redirect()->route('admin.teachers.index')->with('success', 'Data guru berhasil diperbarui!');

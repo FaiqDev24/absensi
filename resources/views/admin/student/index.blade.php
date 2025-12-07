@@ -18,7 +18,6 @@
                 <th>Nama Siswa</th>
                 <th>Gender</th>
                 <th>Kelas</th>
-                <th>Tingkat</th>
                 <th>Aksi</th>
             </tr>
             @foreach ($students as $index => $item)
@@ -27,10 +26,9 @@
                     <th>{{ $index + 1 }}</th>
                     {{-- name, location dari fillable model cinema --}}
                     <th>{{ $item['nis'] }}</th>
-                    <th>{{ $item['name'] }}</th>
+                    <th>{{ $item->user->name ?? $item['name'] }}</th>
                     <th>{{ $item['gender'] }}</th>
                     <th>{{ $item->classRoom->name ?? '-' }}</th>
-                    <th>{{ $item['grade'] }}</th>
                     <th class="d-flex">
                         {{-- ['id' => $item['id']] untuk mengirim id ke route --}}
                         <a href="{{ route('admin.students.edit', ['id' => $item['id']]) }}"

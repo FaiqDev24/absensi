@@ -10,20 +10,30 @@ class Student extends Model
 {
      use HasFactory, SoftDeletes;
 
-    protected $fillable = ['nis', 'name', 'username', 'password', 'gender', 'class_room_id', 'grade'];
+    protected $fillable = ['id_user', 'nis', 'gender', 'birth_date', 'class_room_id', 'grade', 'attendance'];
 
-    protected $hidden = [
-        'password',
+    protected $casts = [
+        'birth_date' => 'date',
     ];
 
-    protected function casts(): array
+    public function user()
     {
-        return [
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(User::class, 'id_user');
     }
+
     public function classRoom()
     {
         return $this->belongsTo(ClassRoom::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    // Accessor untuk hitung total kehadiran dari history
+    public function getTotalAttendanceAttribute()
+    {
+        return $this->attendances()->where('status', 'hadir')->count();
     }
 }

@@ -11,6 +11,8 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/9.2.0/mdb.min.css" rel="stylesheet" />
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <title>Absensi</title>
 </head>
 
@@ -57,9 +59,12 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.schedules.index') }}">Jadwal Mengajar</a>
+                        </li>
                     @elseif (Auth::check() && Auth::user()->role == 'teacher')
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Dashboard</a>
+                            <a class="nav-link" href="{{ route('teacher.dashboard') }}">Dashboard</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a data-mdb-dropdown-init class="nav-link dropdown-toggle" href="#"
@@ -67,12 +72,21 @@
                                 Kelas
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                @foreach ($classrooms as $classroom)
+                                @foreach ($listClass as $cls)
                                     <li>
-                                        <a class="dropdown-item" href="#">{{ $classroom->name }}</a>
+                                        <a class="dropdown-item"
+                                            href="{{ route('teacher.classrooms.show', $cls->id) }}">
+                                            {{ $cls->name }}
+                                        </a>
                                     </li>
                                 @endforeach
                             </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('teacher.attendance.report') }}">Laporan Kehadiran</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('teacher.schedules.index') }}">Jadwal Mengajar</a>
                         </li>
                     @else
                         <li class="nav-item">
@@ -137,7 +151,13 @@
     </script>
     <!-- MDB -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/9.1.0/mdb.umd.min.js"></script>
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     @stack('script')
+    @yield('scripts')
 </body>
 
 </html>

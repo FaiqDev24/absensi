@@ -13,7 +13,7 @@ class SubjectController extends Controller
      */
     public function index()
     {
-        $subjects = Subject::with('teachers')->get();
+        $subjects = Subject::with('teachers', 'classRooms')->get();
         return view('admin.subject.index', compact('subjects'));
     }
 
@@ -22,10 +22,9 @@ class SubjectController extends Controller
      */
     public function create()
     {
-        // $teachers = Teacher::all();
-        // return view('admin.subject.create', compact('teachers'));
         $teachers = Teacher::all();
-        return view('admin.subject.create', compact('teachers'));
+        $classRooms = \App\Models\ClassRoom::all();
+        return view('admin.subject.create', compact('teachers', 'classRooms'));
     }
 
     /**
@@ -55,6 +54,7 @@ class SubjectController extends Controller
         $request->validate([
             'name' => 'required|string|max:255|unique:subjects,name',
             'teacher_ids' => 'nullable|array',
+            'classroom_ids' => 'nullable|array',
         ], [
             'name.required' => 'Nama mata pelajaran harus ada!',
         ]);
@@ -64,10 +64,16 @@ class SubjectController extends Controller
             'name' => $request->name,
         ]);
 
-        // update subject_id di tabel teachers
+        // sync teachers
         if ($request->has('teacher_ids')) {
             $subject->teachers()->attach($request->teacher_ids);
         }
+        
+        // sync classrooms
+        if ($request->has('classroom_ids')) {
+            $subject->classRooms()->attach($request->classroom_ids);
+        }
+        
         return redirect()->route('admin.subjects.index')->with('success', 'Mata pelajaran berhasil ditambahkan!');
     }
 
@@ -84,13 +90,11 @@ class SubjectController extends Controller
      */
     public function edit($id)
     {
-        // $subject = Subject::find($id);
-        // $teachers = Teacher::all();
-        // return view('admin.subject.edit', compact('subject', 'teachers'));
-        $subject = Subject::with('teachers')->findOrFail($id);
+        $subject = Subject::with('teachers', 'classRooms')->findOrFail($id);
         $teachers = Teacher::all();
+        $classRooms = \App\Models\ClassRoom::all();
 
-        return view('admin.subject.edit', compact('subject', 'teachers'));
+        return view('admin.subject.edit', compact('subject', 'teachers', 'classRooms'));
     }
 
     /**
@@ -113,17 +117,25 @@ class SubjectController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'teacher_ids' => 'array',
+            'teacher_ids' => 'nullable|array',
+            'classroom_ids' => 'nullable|array',
         ]);
 
         $subject = Subject::findOrFail($id);
         $subject->update(['name' => $validated['name']]);
 
-        // 🔧 Update relasi many-to-many (pivot)
+        // Sync teachers
         if (isset($validated['teacher_ids'])) {
             $subject->teachers()->sync($validated['teacher_ids']);
         } else {
-            $subject->teachers()->detach(); // jika tidak ada guru dipilih
+            $subject->teachers()->detach();
+        }
+        
+        // Sync classrooms
+        if (isset($validated['classroom_ids'])) {
+            $subject->classRooms()->sync($validated['classroom_ids']);
+        } else {
+            $subject->classRooms()->detach();
         }
 
         return redirect()->route('admin.subjects.index')->with('success', 'Mata pelajaran berhasil diperbarui!');

@@ -1,41 +1,60 @@
 @extends('templates.app')
 
 @section('content')
-<div class="container mt-5">
-    <h5 class="mb-3">Tambah Mata Pelajaran</h5>
+    <div class="container mt-5">
+        <h5 class="mb-3">Tambah Mata Pelajaran</h5>
 
-    <form action="{{ route('admin.subjects.store') }}" method="POST">
-        @csrf
-        <div class="mb-3">
-            <label class="form-label">Nama Mata Pelajaran</label>
-            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
-            @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
-        </div>
-        <div class="mb-3">
-            <label for="teacher_ids" class="form-label">Guru Pengajar</label>
-            <select name="teacher_ids[]" id="teacher_ids" class="form-select" multiple>
-                @foreach ($teachers as $teacher)
-                    <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
-                @endforeach
-            </select>
-            <small class="text-muted">Tekan Ctrl (Windows) / Command (Mac) untuk memilih lebih dari satu guru</small>
-        </div>
+        <form action="{{ route('admin.subjects.store') }}" method="POST">
+            @csrf
+            <div class="mb-3">
+                <label class="form-label">Nama Mata Pelajaran</label>
+                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                    value="{{ old('name') }}" required>
+                @error('name')
+                    <div class="text-danger small">{{ $message }}</div>
+                @enderror
+            </div>
 
-        {{-- <div class="mb-3">
-            <label class="form-label">Guru (opsional)</label>
-            <select name="teacher_id" class="form-select @error('teacher_id') is-invalid @enderror">
-                <option value="">-- Pilih Guru --</option>
-                @foreach($teachers as $teacher)
-                    <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
-                        {{ $teacher->name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('teacher_id') <div class="text-danger small">{{ $message }}</div> @enderror
-        </div> --}}
+            <div class="mb-3">
+                <label for="teacher_ids" class="form-label">Guru Pengajar</label>
+                <select name="teacher_ids[]" id="teacher_ids" class="form-select" multiple>
+                    @foreach ($teachers as $teacher)
+                        <option value="{{ $teacher->id }}">{{ $teacher->user->name }}</option>
+                    @endforeach
+                </select>
+                <small class="text-muted">Pilih satu atau lebih guru pengajar</small>
+            </div>
 
-        <button class="btn btn-primary">Simpan</button>
-        <a href="{{ route('admin.subjects.index') }}" class="btn btn-secondary">Batal</a>
-    </form>
-</div>
+            <div class="mb-3">
+                <label for="classroom_ids" class="form-label">Kelas yang Menggunakan</label>
+                <select name="classroom_ids[]" id="classroom_ids" class="form-select" multiple>
+                    @foreach ($classRooms as $class)
+                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                    @endforeach
+                </select>
+                <small class="text-muted">Pilih kelas yang menggunakan mata pelajaran ini</small>
+            </div>
+
+            <button class="btn btn-primary">Simpan</button>
+            <a href="{{ route('admin.subjects.index') }}" class="btn btn-secondary">Batal</a>
+        </form>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function() {
+            $('#teacher_ids').select2({
+                placeholder: "Pilih guru pengajar",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('#classroom_ids').select2({
+                placeholder: "Pilih kelas",
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
 @endsection

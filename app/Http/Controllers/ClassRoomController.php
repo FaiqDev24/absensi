@@ -8,12 +8,30 @@ use Illuminate\Http\Request;
 class ClassRoomController extends Controller
 {
     /**
+     * Get view prefix based on authenticated user's role
+     */
+    protected function getViewPrefix()
+    {
+        return auth()->user()->role;
+    }
+
+    /**
+     * Get redirect route name based on user's role
+     */
+    protected function getRedirectRoute($action)
+    {
+        $prefix = $this->getViewPrefix();
+        return "{$prefix}.classrooms.{$action}";
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $classRooms = ClassRoom::all();
-        return view('admin.classroom.index', compact('classRooms'));
+        $viewPrefix = $this->getViewPrefix();
+        return view("{$viewPrefix}.classroom.index", compact('classRooms'));
     }
 
     /**
@@ -21,7 +39,8 @@ class ClassRoomController extends Controller
      */
     public function create()
     {
-        return view('admin.classroom.create');
+        $viewPrefix = $this->getViewPrefix();
+        return view("{$viewPrefix}.classroom.create");
     }
 
     /**
@@ -38,7 +57,8 @@ class ClassRoomController extends Controller
         ]);
 
         if ($createData) {
-            return redirect()->route('admin.classrooms.index')->with('success', 'Kelas berhasil ditambahkan.');
+            return redirect()->route($this->getRedirectRoute('index'))
+                ->with('success', 'Kelas berhasil ditambahkan.');
         } else {
             return redirect()->back()->with('error', 'Kelas gagal ditambahkan.');
         }
@@ -52,7 +72,16 @@ class ClassRoomController extends Controller
         $classRoom = ClassRoom::with(['students' => function($q) {
             $q->orderBy('name', 'asc');
         }])->find($id);
-        return view('admin.classroom.detail', compact('classRoom'));
+
+        $viewPrefix = $this->getViewPrefix();
+        
+        // Coba gunakan view detail jika ada, jika tidak gunakan create
+        $viewPath = "{$viewPrefix}.classroom.detail";
+        if (!view()->exists($viewPath)) {
+            $viewPath = "{$viewPrefix}.classroom.create";
+        }
+
+        return view($viewPath, compact('classRoom'));
     }
 
     /**
@@ -61,7 +90,8 @@ class ClassRoomController extends Controller
     public function edit($id)
     {
         $classRoom = ClassRoom::find($id);
-        return view('admin.classroom.edit', compact('classRoom'));
+        $viewPrefix = $this->getViewPrefix();
+        return view("{$viewPrefix}.classroom.edit", compact('classRoom'));
     }
 
     /**
@@ -76,7 +106,8 @@ class ClassRoomController extends Controller
         $classRoom = ClassRoom::find($id);
         $classRoom->update($request->only('name'));
 
-        return redirect()->route('admin.classrooms.index')->with('success', 'Data kelas berhasil diperbarui.');
+        return redirect()->route($this->getRedirectRoute('index'))
+            ->with('success', 'Data kelas berhasil diperbarui.');
     }
 
     /**
@@ -87,17 +118,20 @@ class ClassRoomController extends Controller
         $classRoom = ClassRoom::find($id);
 
         if ($classRoom->students()->count() > 0) {
-            return redirect()->route('admin.classrooms.index')->with('error', 'Kelas tidak dapat dihapus karena masih memiliki data siswa!');
+            return redirect()->route($this->getRedirectRoute('index'))
+                ->with('error', 'Kelas tidak dapat dihapus karena masih memiliki data siswa!');
         }
 
         $classRoom->delete();
-        return redirect()->route('admin.classrooms.index')->with('success', 'Kelas berhasil dihapus.');
+        return redirect()->route($this->getRedirectRoute('index'))
+            ->with('success', 'Kelas berhasil dihapus.');
     }
 
     public function trash()
     {
         $classRooms = ClassRoom::onlyTrashed()->get();
-        return view('admin.classroom.trash', compact('classRooms'));
+        $viewPrefix = $this->getViewPrefix();
+        return view("{$viewPrefix}.classroom.trash", compact('classRooms'));
     }
 
     public function restore($id)
@@ -105,7 +139,7 @@ class ClassRoomController extends Controller
         $classRoom = ClassRoom::onlyTrashed()->findOrFail($id);
         $classRoom->restore();
 
-        return redirect()->route('admin.classrooms.trash')
+        return redirect()->route($this->getRedirectRoute('trash'))
             ->with('success', 'Data kelas berhasil dipulihkan!');
     }
 
@@ -114,7 +148,8 @@ class ClassRoomController extends Controller
         $classRoom = ClassRoom::onlyTrashed()->findOrFail($id);
         $classRoom->forceDelete();
 
-        return redirect()->route('admin.classrooms.trash')
+        return redirect()->route($this->getRedirectRoute('trash'))
             ->with('success', 'Data kelas berhasil dihapus permanen!');
     }
 }
+

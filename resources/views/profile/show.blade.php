@@ -12,9 +12,9 @@
                     <div class="card-header text-center">
                         <h5>Profile Saya</h5>
                     </div>
-                    <div class="card-body text-center">
+                    <div class="card-body">
                         <!-- Foto Profil -->
-                        <div class="mb-3">
+                        <div class="mb-3 text-center">
                             @if ($user->profile_photo)
                                 <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="Profile Photo"
                                     class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
@@ -49,7 +49,7 @@
                             </tr>
                             <tr>
                                 <th>Terdaftar Pada</th>
-                                <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($user->created_at)->format('d M Y') }}</td>
                             </tr>
                         </table>
                     </div>

@@ -17,6 +17,7 @@
                     <th>#</th>
                     <th>Mata Pelajaran</th>
                     <th>Guru Pengajar</th>
+                    <th>Kelas yang Diajar</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -27,7 +28,18 @@
                         <td>{{ $subject->name }}</td>
                         <td>
                             @foreach ($subject->teachers as $teacher)
-                                <span>{{ $teacher->name }}@if(!$loop->last), @endif</span>
+                                <span>{{ $teacher->user->name }}@if (!$loop->last)
+                                        ,
+                                    @endif
+                                </span>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach ($subject->classRooms as $classRoom)
+                                <span>{{ $classRoom->name }}@if (!$loop->last)
+                                        ,
+                                    @endif
+                                </span>
                             @endforeach
                         </td>
                         <td class="d-flex">
@@ -41,12 +53,12 @@
                             </form>
                         </td>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="4">Belum ada data mata pelajaran</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-@endsection
+                    @empty
+                        <tr>
+                            <td colspan="4">Belum ada data mata pelajaran</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endsection
