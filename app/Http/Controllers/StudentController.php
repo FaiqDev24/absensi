@@ -51,7 +51,7 @@ class StudentController extends Controller
 
             // 1. Create User
             // Generate dummy email from NIS
-            $email = $request->nis . '@student.school.id';
+            $email = $request->nis . '@gmail.com';
             $user = User::create([
                 'name' => $request->name,
                 'username' => $request->nis, // NIS as username

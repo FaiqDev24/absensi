@@ -125,3 +125,7 @@ Route::middleware('role:teacher')->prefix('/teacher')->name('teacher.')->group(f
     });
 });
 
+Route::middleware('role:student')->prefix('/student')->name('student.')->group(function () {
+    Route::get('/dashboard', [AuthController::class, 'studentDashboard'])->name('dashboard');
+});
+
