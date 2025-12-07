@@ -18,6 +18,8 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard')->with('success', 'Berhasil Login sebagai Admin!');
             } elseif (Auth::user()->role == 'teacher') {
                 return redirect()->route('teacher.dashboard')->with('success', 'Berhasil Login sebagai Teacher!');
+            } elseif (Auth::user()->role == 'student') {
+                return redirect()->route('student.dashboard')->with('success', 'Berhasil Login sebagai Siswa!');
             }
         }
         return redirect()->route('home')->with('error', 'Username atau password salah!');
@@ -74,6 +76,14 @@ class AuthController extends Controller
         $classrooms = ClassRoom::all();
 
         return view('teacher.dashboard', compact('teacher', 'today', 'classrooms'));
+    }
+
+    public function studentDashboard()
+    {
+        $user = Auth::user();
+        $student = Student::where('id_user', $user->id)->first();
+
+        return view('student.dashboard', compact('student'));
     }
     /**
      * Display a listing of the resource.
