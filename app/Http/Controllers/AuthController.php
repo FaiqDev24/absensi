@@ -83,7 +83,21 @@ class AuthController extends Controller
         $user = Auth::user();
         $student = Student::where('id_user', $user->id)->first();
 
-        return view('student.dashboard', compact('student'));
+        $stats = [
+            'hadir' => 0,
+            'sakit' => 0,
+            'izin' => 0,
+            'alpha' => 0,
+        ];
+
+        if ($student) {
+            $stats['hadir'] = $student->attendances()->where('status', 'hadir')->count();
+            $stats['sakit'] = $student->attendances()->where('status', 'sakit')->count();
+            $stats['izin'] = $student->attendances()->where('status', 'izin')->count();
+            $stats['alpha'] = $student->attendances()->where('status', 'alpha')->count();
+        }
+
+        return view('student.dashboard', compact('student', 'stats'));
     }
     /**
      * Display a listing of the resource.

@@ -10,10 +10,10 @@ class Student extends Model
 {
      use HasFactory, SoftDeletes;
 
-    protected $fillable = ['id_user', 'nis', 'gender', 'birth_date', 'class_room_id', 'grade', 'attendance'];
+    protected $fillable = ['id_user', 'nis', 'gender', 'class_room_id', 'grade', 'attendance'];
 
     protected $casts = [
-        'birth_date' => 'date',
+        
     ];
 
     public function user()

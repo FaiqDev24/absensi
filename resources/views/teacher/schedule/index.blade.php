@@ -2,7 +2,12 @@
 
 @section('content')
     <div class="container mt-5">
-        <h5 class="mb-3">Jadwal Mengajar Saya</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Jadwal Mengajar Saya</h5>
+            <a href="{{ route('teacher.schedules.export-pdf', request()->all()) }}" class="btn btn-danger">     
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </a>
+        </div>
 
         <!-- Filter -->
         <div class="card mb-4">
@@ -59,8 +64,8 @@
                             <td>{{ $schedule->day }}</td>
                             <td>{{ date('H:i', strtotime($schedule->start_time)) }} -
                                 {{ date('H:i', strtotime($schedule->end_time)) }}</td>
-                            <td>{{ $schedule->subject->name }}</td>
-                            <td>{{ $schedule->classRoom->name }}</td>
+                            <td>{{ $schedule->subject->name ?? '-' }}</td>
+                            <td>{{ $schedule->classRoom->name ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>

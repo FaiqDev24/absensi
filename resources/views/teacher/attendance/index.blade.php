@@ -77,7 +77,7 @@
                         <tr>
                             <td>{{ $attendances->firstItem() + $i }}</td>
                             <td>{{ $attendance->date->format('d/m/Y') }}</td>
-                            <td>{{ $attendance->student->name }}</td>
+                            <td>{{ $attendance->student->user->name ?? '-' }}</td>
                             <td>{{ $attendance->classRoom->name ?? '-' }}</td>
                             <td>{{ $attendance->subject->name ?? '-' }}</td>
                             <td>

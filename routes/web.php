@@ -122,6 +122,7 @@ Route::middleware('role:teacher')->prefix('/teacher')->name('teacher.')->group(f
 
     Route::prefix('/schedules')->name('schedules.')->group(function () {
         Route::get('/', [ScheduleController::class, 'index'])->name('index');
+        Route::get('/export-pdf', [ScheduleController::class, 'exportPdf'])->name('export-pdf');
     });
 });
 

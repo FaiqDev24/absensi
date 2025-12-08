@@ -164,4 +164,34 @@ class ScheduleController extends Controller
         return redirect()->route($this->getRedirectRoute('index'))
             ->with('success', 'Jadwal berhasil dihapus.');
     }
+
+    public function exportPdf(Request $request)
+    {
+        $query = Schedule::with(['teacher.user', 'subject', 'classRoom']);
+
+        // Filter untuk teacher: hanya jadwal sendiri
+        if (auth()->user()->role === 'teacher') {
+            $teacher = Teacher::where('id_user', Auth::id())->first();
+            if ($teacher) {
+                $query->where('teacher_id', $teacher->id);
+            }
+        }
+
+        // Apply filters consistently
+        if ($request->filled('day')) {
+            $query->byDay($request->day);
+        }
+        if ($request->filled('class_room_id')) {
+            $query->byClass($request->class_room_id);
+        }
+        if ($request->filled('subject_id')) {
+            $query->bySubject($request->subject_id);
+        }
+
+        $schedules = $query->orderBy('day')->orderBy('start_time')->get();
+        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('teacher.schedule.pdf', compact('schedules', 'days'));
+        return $pdf->download('jadwal_mengajar_'. date('Y-m-d') .'.pdf');
+    }
 }
