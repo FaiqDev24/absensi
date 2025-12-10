@@ -56,26 +56,21 @@ class AuthController extends Controller
             ]);
         }
 
-        $today = now()->format('l');
+        // $today var is no longer needed for day mapping
+        $todayDate = now()->toDateString();
+        $todayDayName = now()->translatedFormat('l'); // For display if needed
 
-        $days = [
-            'Sunday' => 'Minggu',
-            'Monday' => 'Senin',
-            'Tuesday' => 'Selasa',
-            'Wednesday' => 'Rabu',
-            'Thursday' => 'Kamis',
-            'Friday' => 'Jumat',
-            'Saturday' => 'Sabtu',
-        ];
-
-        $today = $days[$today] ?? $today;
-
-        // Ambil jadwal hari ini
-        // $todaySchedules = Schedule::where('teacher_id', $teacher->id)->where('day', $today)->with(['subject', 'classroom'])->get();
+        // Ambil jadwal hari ini (hanya yang belum selesai)
+        $todaySchedules = Schedule::where('teacher_id', $teacher->id)
+            ->where('date', $todayDate)
+            ->whereTime('end_time', '>', now()->format('H:i:s'))
+            ->with(['subject', 'classRoom'])
+            ->orderBy('start_time', 'asc')
+            ->get();
 
         $classrooms = ClassRoom::all();
 
-        return view('teacher.dashboard', compact('teacher', 'today', 'classrooms'));
+        return view('teacher.dashboard', compact('teacher', 'classrooms', 'todaySchedules'));
     }
 
     public function studentDashboard()
@@ -83,7 +78,21 @@ class AuthController extends Controller
         $user = Auth::user();
         $student = Student::where('id_user', $user->id)->first();
 
-        return view('student.dashboard', compact('student'));
+        $stats = [
+            'hadir' => 0,
+            'sakit' => 0,
+            'izin' => 0,
+            'alpha' => 0,
+        ];
+
+        if ($student) {
+            $stats['hadir'] = $student->attendances()->where('status', 'hadir')->count();
+            $stats['sakit'] = $student->attendances()->where('status', 'sakit')->count();
+            $stats['izin'] = $student->attendances()->where('status', 'izin')->count();
+            $stats['alpha'] = $student->attendances()->where('status', 'alpha')->count();
+        }
+
+        return view('student.dashboard', compact('student', 'stats'));
     }
     /**
      * Display a listing of the resource.

@@ -42,7 +42,6 @@ class StudentController extends Controller
             'name' => 'required',
             'password' => 'nullable|min:8',
             'gender' => 'required|in:L,P',
-            'birth_date' => 'nullable|date',
             'class_room_id' => 'nullable|exists:class_rooms,id',
         ]);
 
@@ -64,7 +63,6 @@ class StudentController extends Controller
             $student = Student::create([
                 'id_user' => $user->id,
                 'nis' => $request->nis,
-                // 'birth_date' => $request->birth_date,
                 'class_room_id' => $request->class_room_id,
                 'gender' => $request->gender,
             ]);
@@ -120,7 +118,6 @@ class StudentController extends Controller
             $student->update([
                 'nis' => $request->nis,
                 'gender' => $request->gender,
-                'birth_date' => $request->birth_date,
                 'class_room_id' => $request->class_room_id,
             ]);
 

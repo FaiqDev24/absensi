@@ -36,7 +36,7 @@ class AttendanceController extends Controller
     {
         $viewPrefix = $this->getViewPrefix();
         
-        $query = Attendance::with(['student', 'subject', 'classRoom']);
+        $query = Attendance::with(['student.user', 'subject', 'classRoom']);
         
         // Filter by date if provided
         if ($request->has('date')) {
@@ -71,7 +71,7 @@ class AttendanceController extends Controller
         $teacher = Teacher::where('id_user', Auth::id())->first();
         $subject = $teacher ? $teacher->subjects : null;
         
-        $classRooms = ClassRoom::with('students')->get();
+        $classRooms = ClassRoom::with('students.user')->get();
         $subjects = Subject::all();
         
         // If class and subject selected, get students
@@ -79,7 +79,7 @@ class AttendanceController extends Controller
         $existingAttendances = [];
         
         if ($request->has('class_room_id') && $request->has('subject_id')) {
-            $classRoom = ClassRoom::with('students')->find($request->class_room_id);
+            $classRoom = ClassRoom::with('students.user')->find($request->class_room_id);
             $students = $classRoom ? $classRoom->students : collect();
             
             // Check if attendance already exists for this date
@@ -143,7 +143,7 @@ class AttendanceController extends Controller
      */
     public function edit($id)
     {
-        $attendance = Attendance::with(['student', 'classRoom', 'subject'])->findOrFail($id);
+        $attendance = Attendance::with(['student.user', 'classRoom', 'subject'])->findOrFail($id);
         $viewPrefix = $this->getViewPrefix();
         
         return view("{$viewPrefix}.attendance.edit", compact('attendance'));
@@ -192,7 +192,7 @@ class AttendanceController extends Controller
         $reportData = null;
         
         if ($request->has('class_room_id') && $request->has('month') && $request->has('year')) {
-            $classRoom = ClassRoom::with('students')->find($request->class_room_id);
+            $classRoom = ClassRoom::with('students.user')->find($request->class_room_id);
             $students = $classRoom ? $classRoom->students : collect();
             
             $reportData = [];
@@ -226,7 +226,7 @@ class AttendanceController extends Controller
         // TODO: Implement Excel export using maatwebsite/excel
         // For now, return CSV
         
-        $classRoom = ClassRoom::with('students')->find($request->class_room_id);
+        $classRoom = ClassRoom::with('students.user')->find($request->class_room_id);
         $students = $classRoom ? $classRoom->students : collect();
         
         $filename = "attendance_report_{$request->month}_{$request->year}.csv";
@@ -253,7 +253,7 @@ class AttendanceController extends Controller
                 
                 fputcsv($file, [
                     $student->nis ?? '-',
-                    $student->name,
+                    $student->user->name ?? $student->name,
                     (clone $attendances)->hadir()->count(),
                     (clone $attendances)->sakit()->count(),
                     (clone $attendances)->izin()->count(),

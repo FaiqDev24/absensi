@@ -12,7 +12,7 @@
                 Jadwal Hari Ini
             </div>
             <div class="card-body">
-                {{-- @if ($todaySchedules && $todaySchedules->isNotEmpty()) --}}
+                @if ($todaySchedules && $todaySchedules->isNotEmpty())
                     <table class="table table-striped align-middle">
                         <thead class="table-light">
                             <tr>
@@ -23,21 +23,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @foreach ($todaySchedules as $i => $schedule)
+                            @foreach ($todaySchedules as $i => $schedule)
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
                                     <td>{{ $schedule->subject->name }}</td>
                                     <td>{{ $schedule->classRoom->name }}</td>
-                                    <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
+                                    <td>{{ $schedule->start_time->format('H:i') }} -
+                                        {{ $schedule->end_time->format('H:i') }}</td>
                                 </tr>
-                            @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
-                {{-- @else --}}
+                @else
                     <div class="text-center text-muted">
                         Tidak ada jadwal mengajar hari ini 📘
                     </div>
-                {{-- @endif --}}
+                @endif
             </div>
         </div>
     </div>

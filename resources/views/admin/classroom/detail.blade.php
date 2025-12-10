@@ -5,8 +5,7 @@
         <h5 class="text-center mb-3">Detai Kelas</h5>
         <div class="mb-3">
             <a href="{{ route('admin.classrooms.index') }}" class="btn btn-secondary ">Kembali</a>
-            <a href="{{ route('admin.classrooms.edit', ['id' => $classRoom->id]) }}" class="btn btn-primary">Edit
-                Kelas</a>
+
         </div>
         <table class="table table-bordered">
             <tr style="font-size:20px">
@@ -32,7 +31,6 @@
                         <th>NIS</th>
                         <th>Nama</th>
                         <th>Gender</th>
-                        <th>Tingkat</th>
                         <th style="width:160px">Aksi</th>
                     </tr>
                 </thead>
@@ -41,9 +39,8 @@
                         <tr>
                             <td>{{ $i + 1 }}</td>
                             <td>{{ $student->nis ?? '-' }}</td>
-                            <td>{{ $student->name }}</td>
+                            <td>{{ $student->user->name }}</td>
                             <td>{{ $student->gender }}</td>
-                            <td>{{ $student->grade }}</td>
                             <td class="d-flex">
                                 <form action="{{ route('admin.students.destroy', ['id' => $student->id]) }}" method="POST"
                                     onsubmit="return confirm('Yakin ingin menghapus data ini?')">

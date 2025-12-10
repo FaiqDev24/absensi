@@ -42,7 +42,7 @@
                                 ? \App\Models\Schedule::where('teacher_id', $teacher->id)
                                     ->where('class_room_id', $classRoom->id)
                                     ->with('subject')
-                                    ->orderBy('day')
+                                    ->orderBy('date')
                                     ->orderBy('start_time')
                                     ->get()
                                 : collect();
@@ -56,7 +56,7 @@
                                     <option value="{{ $schedule->id }}"
                                         {{ request('schedule_id') == $schedule->id ? 'selected' : '' }}
                                         data-subject="{{ $schedule->subject_id }}">
-                                        {{ $schedule->day }} |
+                                        {{ \Carbon\Carbon::parse($schedule->date)->translatedFormat('l, d M Y') }} |
                                         {{ date('H:i', strtotime($schedule->start_time)) }}-{{ date('H:i', strtotime($schedule->end_time)) }}
                                         | {{ $schedule->subject->name }}
                                     </option>
@@ -89,7 +89,7 @@
                     @if ($selectedSchedule)
                         <div class="alert alert-info">
                             <strong>Jadwal Terpilih:</strong>
-                            {{ $selectedSchedule->day }} |
+                            {{ \Carbon\Carbon::parse($selectedSchedule->date)->translatedFormat('l, d M Y') }} |
                             {{ date('H:i', strtotime($selectedSchedule->start_time)) }}-{{ date('H:i', strtotime($selectedSchedule->end_time)) }}
                             |
                             {{ $selectedSchedule->subject->name }}
@@ -136,7 +136,7 @@
                                             <tr>
                                                 <td>{{ $i + 1 }}</td>
                                                 <td>{{ $student->nis ?? '-' }}</td>
-                                                <td>{{ $student->name }}</td>
+                                                <td>{{ $student->user->name }}</td>
                                                 <input type="hidden" name="attendances[{{ $i }}][student_id]"
                                                     value="{{ $student->id }}">
                                                 <td class="text-center">

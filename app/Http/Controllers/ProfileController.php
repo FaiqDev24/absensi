@@ -53,69 +53,84 @@ class ProfileController extends Controller
     /**
      * Update the specified resource in storage.
      */
-public function update(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . Auth::id(),
-        'old_password' => 'nullable|string|min:8',
-        'new_password' => 'nullable|string|min:8',
-        'profile_photo' => 'nullable|mimes:jpeg,png,jpg,svg'
-    ]);
+    public function update(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
+            'profile_photo' => 'nullable|mimes:jpeg,png,jpg,svg'
+        ]);
 
-    $user = Auth::user();
+        $user = Auth::user();
 
-    // Siapkan data awal
-    $data = [
-        'name' => $request->name,
-        'email' => $request->email
-    ];
+        // Siapkan data awal
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email
+        ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | GANTI PASSWORD
-    |--------------------------------------------------------------------------
-    */
-    if ($request->filled('old_password') && $request->filled('new_password')) {
+        /*
+        |--------------------------------------------------------------------------
+        | UPLOAD FOTO PROFIL
+        |--------------------------------------------------------------------------
+        */
+        if ($request->hasFile('profile_photo')) {
+
+            // Hapus foto lama jika ada
+            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+
+            // Upload foto baru
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('profile_photos', $filename, 'public');
+
+            $data['profile_photo'] = $path;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE USER
+        |--------------------------------------------------------------------------
+        */
+        $user->update($data);
+
+        return redirect()->route('profile.show')->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    /**
+     * Show the form for changing password.
+     */
+    public function editPassword()
+    {
+        return view('profile.change-password');
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
         if (!password_verify($request->old_password, $user->password)) {
             return back()->withErrors([
                 'old_password' => 'Password lama tidak sesuai.'
             ]);
         }
 
-        // Password valid → update
-        $data['password'] = bcrypt($request->new_password);
+        $user->update([
+            'password' => bcrypt($request->new_password)
+        ]);
+
+        return back()->with('success', 'Password berhasil diperbarui!');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPLOAD FOTO PROFIL
-    |--------------------------------------------------------------------------
-    */
-    if ($request->hasFile('profile_photo')) {
-
-        // Hapus foto lama jika ada
-        if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-            Storage::disk('public')->delete($user->profile_photo);
-        }
-
-        // Upload foto baru
-        $file = $request->file('profile_photo');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('profile_photos', $filename, 'public');
-
-        $data['profile_photo'] = $path;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE USER
-    |--------------------------------------------------------------------------
-    */
-    $user->update($data);
-
-    return redirect()->route('profile.show')->with('success', 'Profil berhasil diperbarui!');
-}
 
 
     /**

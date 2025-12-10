@@ -14,25 +14,24 @@
                             @method('PUT')
 
                             <!-- Preview Foto Profil (Click-to-Change) -->
-                            <div class="mb-3 text-center" style="cursor: pointer;"
-                                 onclick="document.getElementById('profileInput').click();">
+                            <div class="mb-3 text-center d-flex justify-content-center" style="cursor: pointer;"
+                                onclick="document.getElementById('profileInput').click();">
 
-                                @if ($user->profile_photo)
-                                    <img id="preview" src="{{ asset('storage/' . $user->profile_photo) }}"
-                                        alt="Profile Photo" class="rounded-circle"
-                                        style="width: 120px; height: 120px; object-fit: cover;">
-                                @else
-                                    <img id="preview"
-                                        src="https://via.placeholder.com/120?text=User"
-                                        class="rounded-circle"
-                                        style="width: 120px; height: 120px; object-fit: cover;">
-                                @endif
+                                <img id="preview"
+                                    src="{{ $user->profile_photo ? asset('storage/' . $user->profile_photo) : '' }}"
+                                    alt="Profile Photo" class="rounded-circle {{ $user->profile_photo ? '' : 'd-none' }}"
+                                    style="width: 120px; height: 120px; object-fit: cover;">
+
+                                <div id="placeholder"
+                                    class="rounded-circle bg-secondary d-flex align-items-center justify-content-center {{ $user->profile_photo ? 'd-none' : '' }}"
+                                    style="width: 120px; height: 120px;">
+                                    <i class="fas fa-user text-white fa-4x"></i>
+                                </div>
                             </div>
 
                             <!-- Hidden File Input -->
                             <input type="file" id="profileInput" name="profile_photo"
-                                class="d-none @error('profile_photo') is-invalid @enderror"
-                                accept="image/*"
+                                class="d-none @error('profile_photo') is-invalid @enderror" accept="image/*"
                                 onchange="previewImage(event)">
 
                             @error('profile_photo')
@@ -60,26 +59,6 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Password Lama</label>
-                                <input type="password" name="old_password"
-                                    class="form-control @error('old_password') is-invalid @enderror"
-                                    placeholder="Masukkan password lama untuk mengubah password">
-                                @error('old_password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Password Baru</label>
-                                <input type="password" name="new_password"
-                                    class="form-control @error('new_password') is-invalid @enderror"
-                                    placeholder="Kosongkan jika tidak ingin mengubah password">
-                                @error('new_password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                                 <a href="{{ route('profile.show') }}" class="btn btn-secondary">Batal</a>
                             </div>
@@ -94,9 +73,14 @@
         function previewImage(event) {
             const file = event.target.files[0];
             const preview = document.getElementById('preview');
+            const placeholder = document.getElementById('placeholder');
 
             if (file) {
                 preview.src = URL.createObjectURL(file); // Update preview instantly
+                preview.classList.remove('d-none'); // Show image
+                if (placeholder) {
+                    placeholder.classList.add('d-none'); // Hide placeholder
+                }
             }
         }
     </script>

@@ -70,11 +70,13 @@ class ClassRoomController extends Controller
     public function show($id)
     {
         $classRoom = ClassRoom::with(['students' => function($q) {
-            $q->orderBy('name', 'asc');
+            $q->join('users', 'students.id_user', '=', 'users.id')
+              ->orderBy('users.name', 'asc')
+              ->select('students.*');
         }])->find($id);
 
         $viewPrefix = $this->getViewPrefix();
-        
+
         // Coba gunakan view detail jika ada, jika tidak gunakan create
         $viewPath = "{$viewPrefix}.classroom.detail";
         if (!view()->exists($viewPath)) {

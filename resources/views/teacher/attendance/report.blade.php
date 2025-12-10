@@ -102,7 +102,7 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $data['student']->nis ?? '-' }}</td>
-                                        <td>{{ $data['student']->name }}</td>
+                                        <td>{{ $data['student']->user->name }}</td>
                                         <td class="text-center">{{ $data['hadir'] }}</td>
                                         <td class="text-center">{{ $data['sakit'] }}</td>
                                         <td class="text-center">{{ $data['izin'] }}</td>

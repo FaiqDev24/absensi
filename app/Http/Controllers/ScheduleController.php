@@ -43,9 +43,9 @@ class ScheduleController extends Controller
             }
         }
 
-        // Filter by day
-        if ($request->filled('day')) {
-            $query->byDay($request->day);
+        // Filter by date
+        if ($request->filled('date')) {
+            $query->byDate($request->date);
         }
 
         // Filter by teacher (admin only)
@@ -63,15 +63,29 @@ class ScheduleController extends Controller
             $query->bySubject($request->subject_id);
         }
 
-        $schedules = $query->orderBy('day')->orderBy('start_time')->get();
+        // Logic untuk menyembunyikan jadwal yang "lewat" (expired)
+        // date > today OR (date == today AND end_time > now)
+        $today = now()->toDateString();
+        $nowTime = now()->format('H:i:s');
+        
+        $query->where(function($q) use ($today, $nowTime) {
+            $q->where('date', '>', $today)
+              ->orWhere(function($subQ) use ($today, $nowTime) {
+                  $subQ->where('date', $today)
+                       ->whereTime('end_time', '>', $nowTime);
+              });
+        });
+
+        $schedules = $query->orderBy('date', 'asc')
+                           ->orderBy('start_time', 'asc')
+                           ->get();
 
         // Data untuk filter
         $teachers = Teacher::with('user')->get();
         $subjects = Subject::all();
         $classRooms = ClassRoom::all();
-        $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-        return view($this->getViewPrefix() . '.schedule.index', compact('schedules', 'teachers', 'subjects', 'classRooms', 'days'));
+        return view($this->getViewPrefix() . '.schedule.index', compact('schedules', 'teachers', 'subjects', 'classRooms'));
     }
 
     /**
@@ -96,7 +110,7 @@ class ScheduleController extends Controller
             'teacher_id' => 'required|exists:teachers,id',
             'subject_id' => 'required|exists:subjects,id',
             'class_room_id' => 'required|exists:class_rooms,id',
-            'day' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
@@ -135,7 +149,7 @@ class ScheduleController extends Controller
             'teacher_id' => 'required|exists:teachers,id',
             'subject_id' => 'required|exists:subjects,id',
             'class_room_id' => 'required|exists:class_rooms,id',
-            'day' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
@@ -163,5 +177,40 @@ class ScheduleController extends Controller
 
         return redirect()->route($this->getRedirectRoute('index'))
             ->with('success', 'Jadwal berhasil dihapus.');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $query = Schedule::with(['teacher.user', 'subject', 'classRoom']);
+
+        // Filter untuk teacher: hanya jadwal sendiri
+        if (auth()->user()->role === 'teacher') {
+            $teacher = Teacher::where('id_user', Auth::id())->first();
+            if ($teacher) {
+                $query->where('teacher_id', $teacher->id);
+            }
+        }
+
+        // Apply filters consistently
+        // Apply filters consistently
+        if ($request->filled('date')) {
+            $query->byDate($request->date);
+        }
+        if ($request->filled('class_room_id')) {
+            $query->byClass($request->class_room_id);
+        }
+        if ($request->filled('subject_id')) {
+            $query->bySubject($request->subject_id);
+        }
+
+        $schedules = $query->orderBy('date', 'asc')->orderBy('start_time', 'asc')->get();
+        // Days array no longer needed but if view expects it, remove it from compact or pass null
+        // teacher.schedule.pdf view was updated to not use it?
+        // Let's check: I updated teacher.schedule.pdf previously to remove $schedule->day
+        // And I don't see $days being used in my content replacement for that view earlier.
+        // But to be safe, I can remove it.
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('teacher.schedule.pdf', compact('schedules'));
+        return $pdf->download('jadwal_mengajar_'. date('Y-m-d') .'.pdf');
     }
 }

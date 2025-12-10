@@ -18,14 +18,8 @@
                 <form method="GET" action="{{ route('admin.schedules.index') }}">
                     <div class="row">
                         <div class="col-md-2">
-                            <label>Hari</label>
-                            <select name="day" class="form-select">
-                                <option value="">Semua Hari</option>
-                                @foreach ($days as $d)
-                                    <option value="{{ $d }}" {{ request('day') == $d ? 'selected' : '' }}>
-                                        {{ $d }}</option>
-                                @endforeach
-                            </select>
+                            <label>Tanggal</label>
+                            <input type="date" name="date" class="form-control" value="{{ request('date') }}">
                         </div>
                         <div class="col-md-3">
                             <label>Guru</label>
@@ -84,7 +78,7 @@
                 <thead>
                     <tr>
                         <th style="width:60px">No</th>
-                        <th>Hari</th>
+                        <th>Tanggal</th>
                         <th>Waktu</th>
                         <th>Guru</th>
                         <th>Mata Pelajaran</th>
@@ -96,7 +90,7 @@
                     @forelse($schedules as $i => $schedule)
                         <tr>
                             <td>{{ $i + 1 }}</td>
-                            <td>{{ $schedule->day }}</td>
+                            <td>{{ \Carbon\Carbon::parse($schedule->date)->translatedFormat('l, d M Y') }}</td>
                             <td>{{ date('H:i', strtotime($schedule->start_time)) }} -
                                 {{ date('H:i', strtotime($schedule->end_time)) }}</td>
                             <td>{{ $schedule->teacher->user->name }}</td>
