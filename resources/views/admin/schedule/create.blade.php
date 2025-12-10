@@ -60,15 +60,10 @@
             </div>
 
             <div class="mb-3">
-                <label for="day" class="form-label">Hari</label>
-                <select name="day" id="day" class="form-select @error('day') is-invalid @enderror" required>
-                    <option value="">-- Pilih Hari --</option>
-                    @foreach ($days as $d)
-                        <option value="{{ $d }}" {{ old('day') == $d ? 'selected' : '' }}>{{ $d }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('day')
+                <label for="date" class="form-label">Tanggal</label>
+                <input type="date" name="date" id="date" class="form-control @error('date') is-invalid @enderror"
+                    value="{{ old('date') }}" required>
+                @error('date')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>

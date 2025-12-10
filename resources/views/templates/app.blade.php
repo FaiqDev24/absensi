@@ -18,7 +18,7 @@
 
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
         <!-- Container wrapper -->
         <div class="container-fluid mx-3">
             <!-- Toggle button -->
@@ -120,6 +120,12 @@
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <li>
                             <a class="dropdown-item" href="{{ route('profile.show') }}">My profile</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('profile.change-password') }}">Ubah Password</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
                         </li>
                         <li>
                             @if (Auth::check())

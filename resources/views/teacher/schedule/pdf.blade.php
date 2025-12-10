@@ -47,7 +47,7 @@
         <thead>
             <tr>
                 <th class="text-center" style="width: 5%">No</th>
-                <th class="text-center">Hari</th>
+                <th class="text-center">Tanggal</th>
                 <th class="text-center">Waktu</th>
                 <th class="text-center">Mata Pelajaran</th>
                 <th class="text-center">Kelas</th>
@@ -57,7 +57,7 @@
             @forelse($schedules as $index => $schedule)
                 <tr>
                     <td class="text-center">{{ $index + 1 }}</td>
-                    <td>{{ $schedule->day }}</td>
+                    <td>{{ \Carbon\Carbon::parse($schedule->date)->translatedFormat('l, d M Y') }}</td>
                     <td class="text-center">
                         {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} -
                         {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}

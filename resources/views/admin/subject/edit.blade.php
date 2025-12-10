@@ -30,19 +30,6 @@
                 <small class="text-muted">Pilih satu atau lebih guru pengajar</small>
             </div>
 
-            <div class="mb-3">
-                <label for="classroom_ids" class="form-label">Kelas yang Menggunakan</label>
-                <select name="classroom_ids[]" id="classroom_ids" class="form-select" multiple>
-                    @foreach ($classRooms as $class)
-                        <option value="{{ $class->id }}"
-                            {{ $subject->classRooms->contains($class->id) ? 'selected' : '' }}>
-                            {{ $class->name }}
-                        </option>
-                    @endforeach
-                </select>
-                <small class="text-muted">Pilih kelas yang menggunakan mata pelajaran ini</small>
-            </div>
-
             <button class="btn btn-primary">Perbarui</button>
             <a href="{{ route('admin.subjects.index') }}" class="btn btn-secondary">Batal</a>
         </form>
@@ -54,12 +41,6 @@
         $(document).ready(function() {
             $('#teacher_ids').select2({
                 placeholder: "Pilih guru pengajar",
-                allowClear: true,
-                width: '100%'
-            });
-
-            $('#classroom_ids').select2({
-                placeholder: "Pilih kelas",
                 allowClear: true,
                 width: '100%'
             });

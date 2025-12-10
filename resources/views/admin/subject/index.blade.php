@@ -17,7 +17,6 @@
                     <th>#</th>
                     <th>Mata Pelajaran</th>
                     <th>Guru Pengajar</th>
-                    <th>Kelas yang Diajar</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -29,14 +28,6 @@
                         <td>
                             @foreach ($subject->teachers as $teacher)
                                 <span>{{ $teacher->user->name }}@if (!$loop->last)
-                                        ,
-                                    @endif
-                                </span>
-                            @endforeach
-                        </td>
-                        <td>
-                            @foreach ($subject->classRooms as $classRoom)
-                                <span>{{ $classRoom->name }}@if (!$loop->last)
                                         ,
                                     @endif
                                 </span>

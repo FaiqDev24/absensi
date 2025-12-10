@@ -4,7 +4,7 @@
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">Jadwal Mengajar Saya</h5>
-            <a href="{{ route('teacher.schedules.export-pdf', request()->all()) }}" class="btn btn-danger">     
+            <a href="{{ route('teacher.schedules.export-pdf', request()->all()) }}" class="btn btn-danger">
                 <i class="fas fa-file-pdf"></i> Export PDF
             </a>
         </div>
@@ -15,14 +15,8 @@
                 <form method="GET" action="{{ route('teacher.schedules.index') }}">
                     <div class="row">
                         <div class="col-md-4">
-                            <label>Hari</label>
-                            <select name="day" class="form-select">
-                                <option value="">Semua Hari</option>
-                                @foreach ($days as $d)
-                                    <option value="{{ $d }}" {{ request('day') == $d ? 'selected' : '' }}>
-                                        {{ $d }}</option>
-                                @endforeach
-                            </select>
+                            <label>Tanggal</label>
+                            <input type="date" name="date" class="form-control" value="{{ request('date') }}">
                         </div>
                         <div class="col-md-4">
                             <label>Kelas</label>
@@ -51,7 +45,7 @@
                 <thead>
                     <tr>
                         <th style="width:60px">No</th>
-                        <th>Hari</th>
+                        <th>Tanggal</th>
                         <th>Waktu</th>
                         <th>Mata Pelajaran</th>
                         <th>Kelas</th>
@@ -61,7 +55,7 @@
                     @forelse($schedules as $i => $schedule)
                         <tr>
                             <td>{{ $i + 1 }}</td>
-                            <td>{{ $schedule->day }}</td>
+                            <td>{{ \Carbon\Carbon::parse($schedule->date)->translatedFormat('l, d M Y') }}</td>
                             <td>{{ date('H:i', strtotime($schedule->start_time)) }} -
                                 {{ date('H:i', strtotime($schedule->end_time)) }}</td>
                             <td>{{ $schedule->subject->name ?? '-' }}</td>

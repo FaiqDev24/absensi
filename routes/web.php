@@ -28,6 +28,8 @@ Route::middleware('role')->prefix('profile')->name('profile.')->group(function (
     Route::get('/show', [ProfileController::class, 'show'])->name('show');
     Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
     Route::put('/update', [ProfileController::class, 'update'])->name('update');
+    Route::get('/change-password', [ProfileController::class, 'editPassword'])->name('change-password');
+    Route::put('/update-password', [ProfileController::class, 'updatePassword'])->name('update-password');
 });
 
 Route::middleware('role:admin')->prefix('/admin')->name('admin.')->group(function () {

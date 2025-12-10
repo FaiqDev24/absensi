@@ -10,12 +10,13 @@ class Schedule extends Model
         'teacher_id',
         'subject_id',
         'class_room_id',
-        'day',
+        'date',
         'start_time',
         'end_time',
     ];
 
     protected $casts = [
+        'date' => 'date',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
     ];
@@ -37,9 +38,9 @@ class Schedule extends Model
     }
 
     // Scopes
-    public function scopeByDay($query, $day)
+    public function scopeByDate($query, $date)
     {
-        return $query->where('day', $day);
+        return $query->whereDate('date', $date);
     }
 
     public function scopeByTeacher($query, $teacherId)
