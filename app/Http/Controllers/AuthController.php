@@ -22,7 +22,7 @@ class AuthController extends Controller
                 return redirect()->route('student.dashboard')->with('success', 'Berhasil Login sebagai Siswa!');
             }
         }
-        return redirect()->route('home')->with('error', 'Username atau password salah!');
+        return redirect()->route('home')->with('error', 'Email atau password salah!');
     }
 
     public function logout(Request $request)
