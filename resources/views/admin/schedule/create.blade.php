@@ -102,12 +102,54 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
+            // Data mapping dari backend (dikirim dari controller)
+            // Objek ini berisi ID Guru sebagai KEY dan Array ID Pelajaran sebagai VALUE
+            const teacherSubjects = {
+                @foreach ($teachers as $teacher)
+                    {{ $teacher->id }}: @json($teacher->subjects->pluck('id')),
+                @endforeach
+            };
+
+            const allSubjects = @json($subjects);
+
             $('#teacher_id, #subject_id, #class_room_id').select2({
                 placeholder: function() {
                     return $(this).data('placeholder');
                 },
                 allowClear: true,
                 width: '100%'
+            });
+
+            // Filter subjects when teacher changes
+            $('#teacher_id').on('change', function() {
+                const teacherId = $(this).val();
+                const $subjectSelect = $('#subject_id');
+
+                // Clear current options
+                $subjectSelect.empty();
+                $subjectSelect.append('<option value="">-- Pilih Mata Pelajaran --</option>');
+
+                if (teacherId && teacherSubjects[teacherId]) {
+                    const availableSubjectIds = teacherSubjects[teacherId];
+
+                    allSubjects.forEach(function(subject) {
+                        if (availableSubjectIds.includes(subject.id)) {
+                            const option = new Option(subject.name, subject.id, false, false);
+                            $subjectSelect.append(option);
+                        }
+                    });
+                } else {
+                    // Jika tidak ada guru yang dipilih (misal user menekan tombol silang/clear)
+                    // Maka tampilkan SEMUA pelajaran yang ada di database sebagai fallback
+                    allSubjects.forEach(function(subject) {
+                        // Buat opsi baru untuk setiap pelajaran
+                        const option = new Option(subject.name, subject.id, false, false);
+                        // Tambahkan opsi ke dropdown
+                        $subjectSelect.append(option);
+                    });
+                }
+
+                $subjectSelect.trigger('change');
             });
         });
     </script>

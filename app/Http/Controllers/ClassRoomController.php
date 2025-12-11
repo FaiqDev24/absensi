@@ -83,7 +83,40 @@ class ClassRoomController extends Controller
             $viewPath = "{$viewPrefix}.classroom.create";
         }
 
-        return view($viewPath, compact('classRoom'));
+        // Inisialisasi koleksi kosong untuk menampung jadwal
+        $teacherSchedules = collect();
+        
+        // Cek jika user yang login adalah guru
+        if (auth()->user()->role === 'teacher') {
+            // Ambil data guru yang berasosiasi dengan user login
+            $teacher = \App\Models\Teacher::where('id_user', auth()->id())->first();
+            
+            if ($teacher) {
+                // Ambil jadwal mengajar guru DI KELAS INI (berdasarkan $id kelas)
+                $teacherSchedules = \App\Models\Schedule::where('teacher_id', $teacher->id)
+                    ->where('class_room_id', $id) // Filter sesuai kelas yang sedang dibuka
+                    // Logika Filter Kadaluarsa:
+                    ->where(function ($query) {
+                        // 1. Ambil yang tanggalnya di MASA DEPAN
+                        $query->whereDate('date', '>', now()->toDateString())
+                            // 2. ATAU yang tanggalnya HARI INI...
+                            ->orWhere(function ($q) {
+                                $q->whereDate('date', '=', now()->toDateString())
+                                  // ...tetapi jam selesainya belum lewat
+                                  ->whereTime('end_time', '>', now()->format('H:i:s'));
+                            });
+                    })
+                    // Eager load data mata pelajaran
+                    ->with('subject')
+                    // Urutkan jadwal biar rapi
+                    ->orderBy('date')
+                    ->orderBy('start_time')
+                    ->get();
+            }
+        }
+
+        // Kembalikan view dengan membawa data classRoom dan filtered schedules
+        return view($viewPath, compact('classRoom', 'teacherSchedules'));
     }
 
     /**

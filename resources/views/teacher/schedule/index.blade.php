@@ -54,8 +54,11 @@
                 <tbody>
                     @forelse($schedules as $i => $schedule)
                         <tr>
+                            <!-- Nomor Urut -->
                             <td>{{ $i + 1 }}</td>
+                            <!-- Tanggal dalam format lokal (Indonesia) -->
                             <td>{{ \Carbon\Carbon::parse($schedule->date)->translatedFormat('l, d M Y') }}</td>
+                            <!-- Jam Mulai - Jam Selesai -->
                             <td>{{ date('H:i', strtotime($schedule->start_time)) }} -
                                 {{ date('H:i', strtotime($schedule->end_time)) }}</td>
                             <td>{{ $schedule->subject->name ?? '-' }}</td>

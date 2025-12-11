@@ -35,19 +35,6 @@
             <div class="card-body">
                 <form method="GET" action="{{ route('teacher.classrooms.show', $classRoom->id) }}">
                     <div class="row mb-3">
-                        @php
-                            $teacher = \App\Models\Teacher::where('id_user', Auth::id())->first();
-                            // Ambil jadwal mengajar guru DI KELAS INI
-                            $teacherSchedules = $teacher
-                                ? \App\Models\Schedule::where('teacher_id', $teacher->id)
-                                    ->where('class_room_id', $classRoom->id)
-                                    ->with('subject')
-                                    ->orderBy('date')
-                                    ->orderBy('start_time')
-                                    ->get()
-                                : collect();
-                        @endphp
-
                         <div class="col-md-4">
                             <label>Jadwal Mengajar</label>
                             <select name="schedule_id" id="schedule_id" class="form-select" required>
@@ -130,7 +117,7 @@
                                         @foreach ($classRoom->students as $i => $student)
                                             @php
                                                 $attendance = $existingAttendances->get($student->id);
-                                                $currentStatus = $attendance ? $attendance->status : 'hadir';
+                                                $currentStatus = $attendance->status ?? 'hadir'; // default value hadir
                                                 $currentNotes = $attendance ? $attendance->notes : '';
                                             @endphp
                                             <tr>

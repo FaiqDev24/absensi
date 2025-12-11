@@ -74,12 +74,13 @@
                 </thead>
                 <tbody>
                     @forelse($attendances as $i => $attendance)
-                        <tr>
-                            <td>{{ $attendances->firstItem() + $i }}</td>
-                            <td>{{ $attendance->date->format('d/m/Y') }}</td>
-                            <td>{{ $attendance->student->user->name ?? '-' }}</td>
-                            <td>{{ $attendance->classRoom->name ?? '-' }}</td>
-                            <td>{{ $attendance->subject->name ?? '-' }}</td>
+                 
+                    <tr>
+                        <td>{{ $attendances->firstItem() + $i }}</td>
+                        <td>{{ $attendance->date->format('d/m/Y') }}</td>
+                        <td>{{ $attendance->student->user->name ?? '-' }}</td>
+                        <td>{{ $attendance->classRoom->name ?? '-' }}</td>
+                        <td>{{ $attendance->subject->name ?? '-' }}</td>
                             <td>
                                 <span
                                     class="badge bg-{{ $attendance->status == 'hadir' ? 'success' : ($attendance->status == 'sakit' ? 'warning' : ($attendance->status == 'izin' ? 'info' : 'danger')) }}">
@@ -98,7 +99,8 @@
                                 </form>
                             </td>
                         </tr>
-                    @empty
+
+                        @empty
                         <tr>
                             <td colspan="8" class="text-center">Belum ada data kehadiran.</td>
                         </tr>
