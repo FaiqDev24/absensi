@@ -106,12 +106,87 @@
 @section('scripts')
     <script>
         $(document).ready(function() {
+            // Data mapping dari backend (dikirim dari controller)
+            // Objek berisi: { teacher_id: [subject_id_1, subject_id_2, ...] }
+            // Digunakan untuk validasi pelajaran mana saja yang boleh dipilih untuk guru tertentu
+            const teacherSubjects = {
+                @foreach ($teachers as $teacher)
+                    {{ $teacher->id }}: @json($teacher->subjects->pluck('id')),
+                @endforeach
+            };
+
+            // Simpan daftar semua pelajaran yang ada
+            const allSubjects = @json($subjects);
+
+            // Ambil ID pelajaran yang saat ini tersimpan di database (atau old input jika validasi gagal)
+            // Ini penting untuk "memilih kembali" pelajaran yang benar saat halaman diedit
+            const currentSubjectId = "{{ old('subject_id', $schedule->subject_id) }}";
+
+            // Inisialisasi Select2
             $('#teacher_id, #subject_id, #class_room_id').select2({
                 placeholder: function() {
                     return $(this).data('placeholder');
                 },
                 allowClear: true,
                 width: '100%'
+            });
+
+            /**
+             * Fungsi untuk mengisi ulang dropdown pelajaran berdasarkan Guru
+             * @param {string} teacherId - ID Guru yang dipilih
+             * @param {string|null} selectedSubjectId - ID Pelajaran yang harus dipilih otomatis (opsional)
+             */
+            function populateSubjects(teacherId, selectedSubjectId = null) {
+                const $subjectSelect = $('#subject_id');
+                // Bersihkan semua opsi yang ada
+                $subjectSelect.empty();
+                // Tambahkan opsi placeholder
+                $subjectSelect.append('<option value="">-- Pilih Mata Pelajaran --</option>');
+
+                // Jika ID Guru valid dan ada di data mapping kita
+                if (teacherId && teacherSubjects[teacherId]) {
+                    // Ambil array ID pelajaran milik guru tersebut
+                    const availableSubjectIds = teacherSubjects[teacherId];
+
+                    // Loop semua pelajaran
+                    allSubjects.forEach(function(subject) {
+                        // Cek apakah pelajaran ini termasuk yang diajar oleh guru ini
+                        if (availableSubjectIds.includes(subject.id)) {
+                            // Cek apakah ini pelajaran yang sedang aktif/dipilih
+                            const isSelected = selectedSubjectId == subject.id;
+                            // Buat opsi baru, set selected jika match
+                            const option = new Option(subject.name, subject.id, isSelected, isSelected);
+                            $subjectSelect.append(option);
+                        }
+                    });
+                } else {
+                    // Jika tidak ada guru ( atau mapping tidak ketemu), tampilkan semua pelajaran sebagai fallback
+                    allSubjects.forEach(function(subject) {
+                        const isSelected = selectedSubjectId == subject.id;
+                        const option = new Option(subject.name, subject.id, isSelected, isSelected);
+                        $subjectSelect.append(option);
+                    });
+                }
+                // Refresh Select2
+                $subjectSelect.trigger('change');
+            }
+
+            // --- PROSES SAAT HALAMAN DIMUAT (INITIAL LOAD) ---
+            // Ambil nilai guru yang terpilih saat ini
+            const initialTeacherId = $('#teacher_id').val();
+            if (initialTeacherId) {
+                // Jalankan populateSubjects agar dropdown pelajaran HANYA berisi pelajaran guru tersebut
+                // Dan pilih pelajaran yang sedang tersimpan (currentSubjectId)
+                populateSubjects(initialTeacherId, currentSubjectId);
+            }
+
+            // --- EVENT LISTENER ---
+            // Ketika user mengganti pilihan guru
+            $('#teacher_id').on('change', function() {
+                const teacherId = $(this).val();
+                // Jalankan populateSubjects untuk guru baru
+                // Pass null sebagai selectedSubjectId karena kita mau user memilih ulang pelajaran
+                populateSubjects(teacherId, null);
             });
         });
     </script>

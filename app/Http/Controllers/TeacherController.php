@@ -56,6 +56,8 @@ class TeacherController extends Controller
 
         $createData = Teacher::create([
             'id_user' => $createDataUser->id,
+            'username' => $request->name,
+            'password' => Hash::make($request->password),
             'nip' => $request->nip,
         ]);
 

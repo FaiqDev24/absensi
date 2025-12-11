@@ -67,7 +67,7 @@ class ScheduleController extends Controller
         // date > today OR (date == today AND end_time > now)
         $today = now()->toDateString();
         $nowTime = now()->format('H:i:s');
-        
+
         $query->where(function($q) use ($today, $nowTime) {
             $q->where('date', '>', $today)
               ->orWhere(function($subQ) use ($today, $nowTime) {
@@ -93,7 +93,7 @@ class ScheduleController extends Controller
      */
     public function create()
     {
-        $teachers = Teacher::with('user')->get();
+        $teachers = Teacher::with(['user', 'subjects'])->get();
         $subjects = Subject::all();
         $classRooms = ClassRoom::all();
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -108,7 +108,20 @@ class ScheduleController extends Controller
     {
         $request->validate([
             'teacher_id' => 'required|exists:teachers,id',
-            'subject_id' => 'required|exists:subjects,id',
+            'subject_id' => [
+                'required', // Wajib diisi
+                'exists:subjects,id', // Harus ada di tabel subjects
+                // Validasi Custom: Pastikan pelajaran yang dipilih diajarkan oleh guru tersebut
+                function ($attribute, $value, $fail) use ($request) {
+                    // Cari data guru berdasarkan teacher_id yang dikirim
+                    $teacher = Teacher::find($request->teacher_id);
+                    // Jika guru ditemukan, DAN guru tersebut TIDAK punya relasi dengan subject_id ini
+                    if ($teacher && !$teacher->subjects->contains($value)) {
+                        // Maka gagalkan validasi dengan pesan error
+                        $fail('Mata pelajaran ini tidak diajarkan oleh guru yang dipilih.');
+                    }
+                },
+            ],
             'class_room_id' => 'required|exists:class_rooms,id',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -132,7 +145,7 @@ class ScheduleController extends Controller
     public function edit($id)
     {
         $schedule = Schedule::findOrFail($id);
-        $teachers = Teacher::with('user')->get();
+        $teachers = Teacher::with(['user', 'subjects'])->get();
         $subjects = Subject::all();
         $classRooms = ClassRoom::all();
         $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -147,7 +160,20 @@ class ScheduleController extends Controller
     {
         $request->validate([
             'teacher_id' => 'required|exists:teachers,id',
-            'subject_id' => 'required|exists:subjects,id',
+            'subject_id' => [
+                'required', // Wajib diisi
+                'exists:subjects,id', // Harus ada di tabel subjects
+                // Validasi Custom: Pastikan pelajaran yang dipilih diajarkan oleh guru tersebut
+                function ($attribute, $value, $fail) use ($request) {
+                    // Cari data guru berdasarkan teacher_id yang dikirim
+                    $teacher = Teacher::find($request->teacher_id);
+                    // Jika guru ditemukan, DAN guru tersebut TIDAK punya relasi dengan subject_id ini
+                    if ($teacher && !$teacher->subjects->contains($value)) {
+                        // Maka gagalkan validasi dengan pesan error
+                        $fail('Mata pelajaran ini tidak diajarkan oleh guru yang dipilih.');
+                    }
+                },
+            ],
             'class_room_id' => 'required|exists:class_rooms,id',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -157,7 +183,7 @@ class ScheduleController extends Controller
         try {
             $schedule = Schedule::findOrFail($id);
             $schedule->update($request->all());
-            
+
             return redirect()->route($this->getRedirectRoute('index'))
                 ->with('success', 'Jadwal berhasil diperbarui.');
         } catch (\Exception $e) {
@@ -209,7 +235,7 @@ class ScheduleController extends Controller
         // Let's check: I updated teacher.schedule.pdf previously to remove $schedule->day
         // And I don't see $days being used in my content replacement for that view earlier.
         // But to be safe, I can remove it.
-        
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('teacher.schedule.pdf', compact('schedules'));
         return $pdf->download('jadwal_mengajar_'. date('Y-m-d') .'.pdf');
     }
