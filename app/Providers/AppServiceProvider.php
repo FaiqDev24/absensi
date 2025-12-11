@@ -27,9 +27,16 @@ class AppServiceProvider extends ServiceProvider
             if (auth()->check() && auth()->user()->role === 'teacher') {
                 $teacher = \App\Models\Teacher::where('id_user', auth()->id())->first();
                 
-                // Ambil kelas dari jadwal mengajar guru (unique)
+                // Ambil kelas dari jadwal mengajar guru (unique) yang belum kadaluarsa
                 if ($teacher) {
                     $listClass = \App\Models\Schedule::where('teacher_id', $teacher->id)
+                        ->where(function ($query) {
+                            $query->whereDate('date', '>', now()->toDateString())
+                                ->orWhere(function ($q) {
+                                    $q->whereDate('date', '=', now()->toDateString())
+                                      ->whereTime('end_time', '>', now()->format('H:i:s'));
+                                });
+                        })
                         ->with('classRoom')
                         ->get()
                         ->pluck('classRoom')

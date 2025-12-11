@@ -199,7 +199,7 @@
                         <tr>
                             <td>{{ $i + 1 }}</td>
                             <td>{{ $student->nis ?? '-' }}</td>
-                            <td>{{ $student->name }}</td>
+                            <td>{{ $student->user->name }}</td>
                             <td>{{ $student->gender }}</td>
                             <td>{{ $student->attendances()->where('status', 'hadir')->count() }} kali hadir</td>
                         </tr>
